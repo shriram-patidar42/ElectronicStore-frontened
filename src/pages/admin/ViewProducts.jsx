@@ -7,8 +7,8 @@ import { addProductImage, getAllProducts, searchProduct, udpateProductCategory, 
 import { Container, Row, Col, Table, Button, Card, Form, Pagination, Modal, FormGroup, InputGroup } from 'react-bootstrap'
 import defaultImage from '../../assets/default_profile.jpg'
 import ShowHtml from "../../components/ShowHtml"
-import { Editor } from "@tinymce/tinymce-react"
-import { useRef } from "react"
+// import { Editor } from "@tinymce/tinymce-react"
+// import { useRef } from "react"
 import { getCategories } from "../../services/CategoryService"
 
 const ViewProducts = () => {
@@ -16,7 +16,7 @@ const ViewProducts = () => {
     const [previousProducts, setPreviousProducts] = useState(undefined)
     const [products, setProducts] = useState(undefined)
     const [currentProduct, setCurrentProduct] = useState(undefined)
-    const editorRef = useRef()
+    // const editorRef = useRef()
     const [categories, setCategories] = useState(undefined)
     const [imageUpdate, setImageUpdate] = useState({
         image: undefined,
@@ -376,7 +376,7 @@ const ViewProducts = () => {
 
                                 <Form.Label>Product Description</Form.Label>
 
-                                {/* <Form.Control
+                                <Form.Control
                                             as={'textarea'}
                                             rows={6}
                                             placeholder="Enter here"
@@ -387,9 +387,9 @@ const ViewProducts = () => {
                                             })}
 
                                             value={product.description}
-                                          /> */}
+                                          />
 
-                                <Editor
+                                {/* <Editor
 
                                     apiKey=""
                                     onInit={(evt, editor) => editorRef.current = editor}
@@ -416,7 +416,7 @@ const ViewProducts = () => {
 
 
 
-                                />
+                                /> */}
 
                             </Form.Group>
 

@@ -3,7 +3,7 @@ import { Button, Card, Col, Container, Form, FormGroup, InputGroup, Row } from "
 import { toast } from "react-toastify"
 import { addProductImage, createProductInCategory, createProductWithOutCategory } from "../../services/product.service"
 import { getCategories } from '../../services/CategoryService'
-import { Editor } from '@tinymce/tinymce-react'
+// import { Editor } from '@tinymce/tinymce-react'
 const AddProduct = () => {
 
     const [product, setProduct] = useState({
@@ -22,7 +22,7 @@ const AddProduct = () => {
 
     //for rich text editor
 
-    const editorRef = useRef()
+    // const editorRef = useRef()
 
     useEffect(() => {
         getCategories(0, 1000).then(data => {
@@ -216,7 +216,7 @@ const AddProduct = () => {
 
                                 <Form.Label>Product Description</Form.Label>
 
-                                {/* <Form.Control
+                                <Form.Control
                                     as={'textarea'}
                                     rows={6}
                                     placeholder="Enter here"
@@ -227,9 +227,9 @@ const AddProduct = () => {
                                     })}
 
                                     value={product.description}
-                                /> */}
+                                />
 
-                                <Editor
+                                {/* <Editor
 
                                     apiKey="2waomydao0nyeq1grkaq6h0vv2dmabjy1344i6miluonl5pg"
                                     onInit={(evt, editor) => editorRef.current = editor}
@@ -253,7 +253,7 @@ const AddProduct = () => {
                                         description: editorRef.current.getContent()
                                     })}
 
-                                />
+                                /> */}
 
                             </Form.Group>
 
