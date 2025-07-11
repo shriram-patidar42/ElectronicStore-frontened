@@ -1,4 +1,5 @@
-export const BASE_URL = `http://localhost:9090`;
+// export const BASE_URL = `http://localhost:9090`;
+export const BASE_URL = `https://electronic-backened-production-28db.up.railway.app/`;
 export const PRODUCT_PAGE_SIZE = 10;
 export const ADMIN_ORDER_PAGE_SIZE = 10;
 export const USER_PAGE_SIZE = 10;
