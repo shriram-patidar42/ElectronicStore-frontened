@@ -79,11 +79,22 @@ const ViewProducts = () => {
                         <tr key={product.productId}>
                             <td>{index + 1}</td>
                             <td>
-                                <img
+                                {/* <img
                                     src={product.productImageName ? `https://electronic-backend-production-28db.up.railway.app/products/image/${product.productId}` : "https://via.placeholder.com/80"}
                                     alt={product.title}
                                     style={{ width: '80px', height: '80px' }}
+                                /> */}
+
+                                <img
+                                    src={`https://electronic-backend-production-28db.up.railway.app/products/image/${product.productId}`}
+                                    alt={product.title}
+                                    style={{ width: '80px', height: '80px', objectFit: 'cover' }}
+                                    onError={(e) => {
+                                    e.target.onerror = null;
+                                    e.target.src = "https://via.placeholder.com/80";
+                                    }}
                                 />
+                                
                             </td>
                             <td>{product.title}</td>
                             <td>{product.description}</td>
