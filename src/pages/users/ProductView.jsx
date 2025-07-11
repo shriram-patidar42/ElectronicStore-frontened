@@ -60,7 +60,7 @@ function ProductView() {
                                         </Col>
                                         <Col>
                                             <h3>{product.title}</h3>
-                                            <p className='text-muted'>Sort description <span>Lorem ipsum dolor sit amet consectetur adipisicing elit. Architecto, velit?</span> </p>
+                                            {/* <p className='text-muted'>Sort description <span>Lorem ipsum dolor sit amet consectetur adipisicing elit. Architecto, velit?</span> </p> */}
                                             <Badge pill bg='info'>{product.category?.title}</Badge>
                                             <Badge className='ms-2' pill bg={product.stock ? 'success' : 'danger'}>{product.stock ? 'In Stock' : " Out of Stock"}</Badge>
                                             <Container className='text-center'>

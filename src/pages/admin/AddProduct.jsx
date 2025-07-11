@@ -92,10 +92,10 @@ const AddProduct = () => {
         }
 
 
-        if (product.description === undefined || product.description.trim() === '') {
-            toast.error("Description is required !!")
-            return
-        }
+        // if (product.description === undefined || product.description.trim() === '') {
+        //     toast.error("Description is required !!")
+        //     return
+        // }
 
         if (product.price <= 0) {
             toast.error("Invalid Price !!")
