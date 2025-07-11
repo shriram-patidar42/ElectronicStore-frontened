@@ -1,308 +1,431 @@
-import { useEffect, useState } from "react";
-import {
-  Button,
-  Card,
-  Col,
-  Container,
-  Form,
-  FormGroup,
-  InputGroup,
-  Row,
-} from "react-bootstrap";
-import { toast } from "react-toastify";
-import {
-  addProductImage,
-  createProductInCategory,
-  createProductWithOutCategory,
-} from "../../services/product.service";
-import { getCategories } from "../../services/CategoryService";
-
+import { useEffect, useRef, useState } from "react"
+import { Button, Card, Col, Container, Form, FormGroup, InputGroup, Row } from "react-bootstrap"
+import { toast } from "react-toastify"
+import { addProductImage, createProductInCategory, createProductWithOutCategory } from "../../services/product.service"
+import { getCategories } from '../../services/CategoryService'
+import { Editor } from '@tinymce/tinymce-react'
 const AddProduct = () => {
-  const [product, setProduct] = useState({
-    title: "",
-    description: "",
-    price: 0,
-    discountedPrice: 0,
-    quantity: 1,
-    live: false,
-    stock: true,
-    image: undefined,
-    imagePreview: undefined,
-  });
 
-  const [categories, setCategories] = useState(undefined);
-  const [selectedCategoryId, setSelectedCategoryId] = useState("none");
-
-  useEffect(() => {
-    getCategories(0, 1000)
-      .then((data) => {
-        setCategories(data);
-      })
-      .catch((error) => {
-        console.log(error);
-        toast.error("Error in loading categories");
-      });
-  }, []);
-
-  const handleFileChange = (event) => {
-    if (
-      event.target.files[0].type === "image/png" ||
-      event.target.files[0].type === "image/jpeg"
-    ) {
-      const reader = new FileReader();
-      reader.onload = (r) => {
-        setProduct({
-          ...product,
-          imagePreview: r.target.result,
-          image: event.target.files[0],
-        });
-      };
-      reader.readAsDataURL(event.target.files[0]);
-    } else {
-      toast.error("Invalid file format (Only PNG/JPEG)");
-      setProduct({
-        ...product,
+    const [product, setProduct] = useState({
+        title: '',
+        description: '',
+        price: 0,
+        discountedPrice: 0,
+        quantity: 1,
+        live: false,
+        stock: true,
         image: undefined,
-        imagePreview: undefined,
-      });
+        imagePreview: undefined
+    })
+    const [categories, setCategories] = useState(undefined)
+    const [selectedCategoryId, setSelectedCategoryId] = useState("none")
+
+    //for rich text editor
+
+    const editorRef = useRef()
+
+    useEffect(() => {
+        getCategories(0, 1000).then(data => {
+            console.log(data)
+            setCategories(data)
+
+        }).catch((error) => {
+            console.log(error);
+            toast.error("error in loading categories")
+        })
+    }, [])
+
+
+    const handleFileChange = (event) => {
+        if (event.target.files[0].type === 'image/png' || event.target.files[0].type == 'image/jpeg') {
+            //preview show
+            const reader = new FileReader()
+            reader.onload = (r) => {
+                setProduct({
+                    ...product,
+                    imagePreview: r.target.result,
+                    image: event.target.files[0]
+                })
+            }
+
+            reader.readAsDataURL(event.target.files[0])
+        }
+        else {
+            toast.error("Invalid File !!")
+            setProduct({
+                ...product,
+                image: undefined,
+                imagePreview: undefined
+            })
+        }
     }
-  };
 
-  const clearForm = () => {
-    setProduct({
-      title: "",
-      description: "",
-      price: 0,
-      discountedPrice: 0,
-      quantity: 1,
-      live: false,
-      stock: true,
-      image: undefined,
-      imagePreview: undefined,
-    });
-  };
+    const clearForm = () => {
 
-  const submitAddProductForm = (event) => {
-    event.preventDefault();
+        editorRef.current.setContent('')
 
-    if (!product.title.trim()) {
-      toast.error("Title is required !!");
-      return;
+        setProduct({
+            title: '',
+            description: '',
+            price: 0,
+            discountedPrice: 0,
+            quantity: 1,
+            live: false,
+            stock: true,
+            image: undefined,
+            imagePreview: undefined
+        })
+
+
+
+
+
     }
 
-    if (!product.description.trim()) {
-      toast.error("Description is required !!");
-      return;
-    }
+    //submitAddProductForm
+    const submitAddProductForm = (event) => {
+        event.preventDefault()
 
-    if (product.price <= 0) {
-      toast.error("Invalid Price !!");
-      return;
-    }
-
-    if (product.discountedPrice <= 0 || product.discountedPrice >= product.price) {
-      toast.error("Invalid discounted price !!");
-      return;
-    }
-
-    const create = selectedCategoryId === "none"
-      ? createProductWithOutCategory(product)
-      : createProductInCategory(product, selectedCategoryId);
-
-    create
-      .then((data) => {
-        toast.success("Product is created !!");
-        if (!product.image) {
-          clearForm();
-          return;
+        if (product.title === undefined || product.title.trim() === '') {
+            toast.error("Title is required !!")
+            return
         }
 
-        addProductImage(product.image, data.productId)
-          .then(() => {
-            toast.success("Image uploaded");
-            clearForm();
-          })
-          .catch((error) => {
-            console.log(error);
-            toast.error("Error in uploading image");
-          });
-      })
-      .catch((error) => {
-        console.log(error);
-        toast.error("Error in creating product !! check product details");
-      });
-  };
 
-  return (
-    <div>
-      <Card className="shadow-sm">
-        <Card.Body>
-          <h5>Add Product here</h5>
-          <Form onSubmit={submitAddProductForm}>
-            <FormGroup className="mt-3">
-              <Form.Label>Product title</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter here"
-                value={product.title}
-                onChange={(e) =>
-                  setProduct({ ...product, title: e.target.value })
-                }
-              />
-            </FormGroup>
+        if (product.description === undefined || product.description.trim() === '') {
+            toast.error("Description is required !!")
+            return
+        }
 
-            <Form.Group className="mt-3">
-              <Form.Label>Product Description</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={6}
-                placeholder="Enter product description"
-                value={product.description}
-                onChange={(e) =>
-                  setProduct({ ...product, description: e.target.value })
-                }
-              />
-            </Form.Group>
+        if (product.price <= 0) {
+            toast.error("Invalid Price !!")
+            return
+        }
 
-            <Row>
-              <Col>
-                <FormGroup className="mt-3">
-                  <Form.Label>Price</Form.Label>
-                  <Form.Control
-                    type="number"
-                    placeholder="Enter here"
-                    value={product.price}
-                    onChange={(e) =>
-                      setProduct({ ...product, price: e.target.value })
+        if (product.discountedPrice <= 0 || product.discountedPrice >= product.price) {
+            toast.error("Invalid discounted priced !!")
+            return
+        }
+
+        //validate
+
+        if (selectedCategoryId === 'none') {
+            // create product without category 
+            createProductWithOutCategory(product)
+                .then(data => {
+                    console.log(data);
+                    toast.success("Product is created !!")
+                    if (!product.image) {
+                        clearForm()
+                        return
                     }
-                  />
-                </FormGroup>
-              </Col>
 
-              <Col>
-                <FormGroup className="mt-3">
-                  <Form.Label>Discounted Price</Form.Label>
-                  <Form.Control
-                    type="number"
-                    placeholder="Enter here"
-                    value={product.discountedPrice}
-                    onChange={(e) => {
-                      if (e.target.value > product.price) {
-                        toast.error("Invalid Discount value !!");
-                        return;
-                      }
-                      setProduct({
-                        ...product,
-                        discountedPrice: e.target.value,
-                      });
-                    }}
-                  />
-                </FormGroup>
-              </Col>
-            </Row>
 
-            <Form.Group className="mt-3">
-              <Form.Label>Product Quantity</Form.Label>
-              <Form.Control
-                type="number"
-                placeholder="Enter here"
-                value={product.quantity}
-                onChange={(e) =>
-                  setProduct({ ...product, quantity: e.target.value })
-                }
-              />
-            </Form.Group>
+                    //image upload
+                    addProductImage(product.image, data.productId)
+                        .then(data1 => {
+                            console.log(data1)
+                            toast.success("Image uploaded")
+                            clearForm()
+                        })
+                        .catch(error => {
+                            console.log(error)
+                            toast.error("Error in uploading image")
+                        })
 
-            <Row className="mt-3 px-1">
-              <Col>
-                <Form.Check
-                  type="switch"
-                  label="Live"
-                  checked={product.live}
-                  onChange={() =>
-                    setProduct({ ...product, live: !product.live })
-                  }
-                />
-              </Col>
-              <Col>
-                <Form.Check
-                  type="switch"
-                  label="Stock"
-                  checked={product.stock}
-                  onChange={() =>
-                    setProduct({ ...product, stock: !product.stock })
-                  }
-                />
-              </Col>
-            </Row>
 
-            <Form.Group className="mt-3">
-              <Container
-                hidden={!product.imagePreview}
-                className="text-center py-4 border border-2"
-              >
-                <p className="text-muted">Image Preview</p>
-                <img
-                  className="img-fluid"
-                  style={{ maxHeight: "250px" }}
-                  src={product.imagePreview}
-                  alt=""
-                />
-              </Container>
-              <Form.Label>Select product image</Form.Label>
-              <InputGroup>
-                <Form.Control
-                  type="file"
-                  onChange={(e) => handleFileChange(e)}
-                />
-                <Button
-                  variant="outline-secondary"
-                  onClick={() =>
-                    setProduct({
-                      ...product,
-                      image: undefined,
-                      imagePreview: undefined,
-                    })
-                  }
-                >
-                  Clear
-                </Button>
-              </InputGroup>
-            </Form.Group>
 
-            <Form.Group className="mt-3">
-              <Form.Label>Select Category</Form.Label>
-              <Form.Select
-                onChange={(e) => setSelectedCategoryId(e.target.value)}
-              >
-                <option value="none">None</option>
-                {categories &&
-                  categories.content.map((cat) => (
-                    <option key={cat.categoryId} value={cat.categoryId}>
-                      {cat.title}
-                    </option>
-                  ))}
-              </Form.Select>
-            </Form.Group>
+                })
+                .catch(error => {
+                    console.log(error)
+                    toast.error("Error in creating product !! check product details")
+                })
 
-            <Container className="text-center mt-3">
-              <Button type="submit" variant="success" size="sm">
-                Add Product
-              </Button>
-              <Button
-                onClick={clearForm}
-                className="ms-1"
-                variant="danger"
-                size="sm"
-              >
-                Clear Data
-              </Button>
-            </Container>
-          </Form>
-        </Card.Body>
-      </Card>
-    </div>
-  );
-};
+        } else {
 
-export default AddProduct;
+            //create product within category
+            createProductInCategory(product, selectedCategoryId)
+                .then(data => {
+                    console.log(data);
+                    toast.success("Product is created !!")
+                    if (!product.image) {
+                        clearForm()
+                        return
+                    }
+
+
+                    //image upload
+                    addProductImage(product.image, data.productId)
+                        .then(data1 => {
+                            console.log(data1)
+                            toast.success("Image uploaded")
+                            clearForm()
+                        })
+                        .catch(error => {
+                            console.log(error)
+                            toast.error("Error in uploading image")
+                        })
+
+
+
+                })
+                .catch(error => {
+                    console.log(error)
+                    toast.error("Error in creating product !! check product details")
+                })
+
+        }
+
+
+
+
+    }
+
+
+
+    const formView = () => {
+        return (
+            <>
+
+                {/* {JSON.stringify(product)} */}
+
+                <Card className=" shadow-sm ">
+                    {/* {JSON.stringify(product)} */}
+                    <Card.Body>
+                        <h5>Add Product here </h5>
+                        <Form onSubmit={submitAddProductForm}>
+
+                            {/* product title */}
+                            <FormGroup className="mt-3">
+                                <Form.Label>Product title</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Enter here"
+                                    onChange={(event) => setProduct({
+                                        ...product,
+                                        title: event.target.value
+                                    })}
+                                    value={product.title}
+
+                                />
+                            </FormGroup>
+
+                            {/* product description */}
+
+                            <Form.Group className="mt-3" >
+
+                                <Form.Label>Product Description</Form.Label>
+
+                                {/* <Form.Control
+                                    as={'textarea'}
+                                    rows={6}
+                                    placeholder="Enter here"
+
+                                    onChange={(event) => setProduct({
+                                        ...product,
+                                        description: event.target.value
+                                    })}
+
+                                    value={product.description}
+                                /> */}
+
+                                <Editor
+
+                                    apiKey="2waomydao0nyeq1grkaq6h0vv2dmabjy1344i6miluonl5pg"
+                                    onInit={(evt, editor) => editorRef.current = editor}
+                                    init={{
+                                        height: 380,
+                                        menubar: true,
+                                        plugins: [
+                                            'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+                                            'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                                            'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
+                                        ],
+                                        toolbar: 'undo redo | blocks | ' +
+                                            'bold italic forecolor | alignleft aligncenter ' +
+                                            'alignright alignjustify | bullist numlist outdent indent | ' +
+                                            'removeformat | help',
+                                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+                                    }}
+
+                                    onEditorChange={() => setProduct({
+                                        ...product,
+                                        description: editorRef.current.getContent()
+                                    })}
+
+                                />
+
+                            </Form.Group>
+
+                            <Row>
+                                <Col>
+                                    {/* price */}
+                                    <FormGroup className="mt-3">
+                                        <Form.Label>Price</Form.Label>
+                                        <Form.Control type="number"
+                                            placeholder="Enter here"
+                                            onChange={(event) => setProduct({
+                                                ...product,
+                                                price: event.target.value
+                                            })}
+
+                                            value={product.price}
+
+                                        />
+                                    </FormGroup>
+
+
+                                </Col>
+
+                                <Col>
+
+                                    {/* discounted price */}
+                                    <FormGroup className="mt-3">
+                                        <Form.Label>Discounted Price</Form.Label>
+                                        <Form.Control
+
+                                            type="number"
+
+                                            placeholder="Enter here"
+                                            value={product.discountedPrice}
+
+                                            onChange={(event) => {
+                                                if (event.target.value > product.price) {
+                                                    toast.error("Invalid Discount value !!")
+                                                    return
+                                                }
+                                                setProduct({
+                                                    ...product,
+                                                    discountedPrice: event.target.value
+                                                })
+                                            }}
+
+
+                                        />
+                                    </FormGroup>
+
+                                </Col>
+                            </Row>
+
+                            {/* Product quantity */}
+
+                            <Form.Group className="mt-3" >
+
+                                <Form.Label>Product Quantity</Form.Label>
+                                <Form.Control
+                                    type="number"
+                                    placeholder="Enter here"
+                                    value={product.quantity}
+                                    onChange={(event) => setProduct({
+                                        ...product,
+                                        quantity: event.target.value
+                                    })}
+
+                                />
+                            </Form.Group>
+
+                            <Row className="mt-3 px-1">
+                                <Col>
+                                    <Form.Check
+
+                                        type="switch"
+                                        label={"Live"}
+                                        checked={product.live}
+                                        onChange={(event) => {
+                                            setProduct({
+                                                ...product,
+                                                live: !product.live
+                                            })
+                                        }}
+                                    />
+                                </Col>
+                                <Col>
+
+                                    <Form.Check
+                                        type="switch"
+                                        label={"Stock"}
+                                        checked={product.stock}
+                                        onChange={(event) => {
+                                            setProduct({
+                                                ...product,
+                                                stock: !product.stock
+                                            })
+                                        }}
+                                    />
+
+                                </Col>
+                            </Row>
+
+                            {/* product image */}
+                            <Form.Group className="mt-3">
+                                <Container hidden={!product.imagePreview} className="text-center  py-4 border border-2">
+                                    <p className="text-muted">Image Preview</p>
+                                    <img
+                                        className="img-fluid"
+                                        style={{
+                                            maxHeight: "250px"
+                                        }}
+                                        src={product.imagePreview}
+                                        alt="" />
+                                </Container>
+                                <Form.Label>Select product image</Form.Label>
+                                <InputGroup>
+                                    <Form.Control type={'file'}
+                                        onChange={(event) => handleFileChange(event)}
+                                    />
+
+                                    <Button onClick={(event) => {
+                                        setProduct({
+                                            ...product,
+                                            imagePreview: undefined,
+                                            image: undefined
+                                        })
+                                    }} variant="outline-secondary">Clear</Button>
+                                </InputGroup>
+                            </Form.Group>
+
+
+                            {/* {JSON.stringify(selectedCategoryId)} */}
+
+                            <Form.Group className="mt-3">
+
+                                <Form.Label >Select Category</Form.Label>
+                                <Form.Select onChange={(event) => setSelectedCategoryId(event.target.value)}>
+
+                                    <option value="none">None</option>
+                                    {
+                                        (categories) ? <>
+
+                                            {
+                                                categories.content.map(cat => <option key={cat.categoryId} value={cat.categoryId} >{cat.title}</option>)
+                                            }
+
+                                        </> : ''
+                                    }
+                                </Form.Select>
+
+
+                            </Form.Group>
+
+                            <Container className="text-center mt-3">
+                                <Button type="submit" variant="success" size="sm">Add Product</Button>
+                                <Button onClick={clearForm} className="ms-1" variant="danger" size="sm">Clear Data</Button>
+                            </Container>
+
+                        </Form>
+                    </Card.Body>
+                </Card>
+
+            </>
+
+        )
+    }
+
+    return (<div>
+        {
+            formView()
+        }
+    </div>)
+}
+
+export default AddProduct
